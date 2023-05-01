@@ -8,15 +8,15 @@ import numpy as np
 """
 
 def check_game_over(episode:int,
-    state: int, cliff_pos: np.array, goal_pos: int, number_of_steps: int
+    state: int, cliff_pos: np.array, goal_pos: int, number_of_steps: int, max_steps: int
 ) -> bool:
     """
     Function returns reward in the given state
     """
-    # Game over when reached goal, fell down cliff, or exceeded 1000 steps
+    # Game over when reached goal, fell down cliff, or exceeded max_steps
     game_over = (
         True
-        if (state == goal_pos   or   state in cliff_pos or number_of_steps == 99)
+        if (state == goal_pos   or   state in cliff_pos or number_of_steps == max_steps - 1)
         else False
     )
     if state == goal_pos and number_of_steps > 1:
@@ -26,15 +26,15 @@ def check_game_over(episode:int,
 
 
 def get_initial_random_position():
-    state = np.random.choice(12)
+    #state = np.random.choice(12)
     action = np.random.choice(4)
 
-    return action, state
+    return action, 0
 
 
 def init_env(expoloring_starts=False) -> (tuple, np.array, np.array, int, bool):
     """Initialize environment and agent position"""
-    agent_pos = get_initial_random_position() if expoloring_starts else (3, 0)  # Left-bottom corner (start)
+    agent_pos = (3, 0)  # Left-bottom corner (start)
     env = np.zeros((4, 12), dtype=int)
     env = mark_path(agent_pos, env)
     cliff_states = np.arange(37, 47)  # States for cliff tiles

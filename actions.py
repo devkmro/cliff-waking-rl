@@ -27,7 +27,7 @@ def greedy_action(state: int, q_table: np.array) -> int:
     """
     Select action based on the greedy policy
     """
-    return np.random.choice(4)
+    return np.argmax(q_table[:, state])
 
 
 def move_agent(agent_pos: tuple, action: int) -> tuple:

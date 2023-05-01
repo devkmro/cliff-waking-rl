@@ -10,6 +10,7 @@ from environment import (
 )
 from qtable import init_q_table
 from actions import (
+    greedy_action,
     epsilon_greedy_action,
     move_agent,
     get_reward,
@@ -30,7 +31,7 @@ def update_q_table(q_table, state_action_trajectory, reward_trajectory, gamma, a
         q_table[action, state] += alpha * (cum_reward - q_table[action, state])
 
 
-def monte_carlo(sim_input, sim_output, expoloring_starts=False) -> (np.array, list):
+def monte_carlo(sim_input, sim_output) -> (np.array, list):
     """
     Monte Carlo: full-trajectory RL algorithm to train agent
     """
@@ -38,6 +39,8 @@ def monte_carlo(sim_input, sim_output, expoloring_starts=False) -> (np.array, li
     gamma = sim_input.gamma
     alpha = sim_input.alpha
     epsilon = sim_input.epsilon
+    max_steps = sim_input.max_steps
+    epsilon_delta = sim_input.epsilon_delta
 
     q_table = init_q_table()
     steps_cache = np.zeros(num_episodes)
@@ -45,11 +48,6 @@ def monte_carlo(sim_input, sim_output, expoloring_starts=False) -> (np.array, li
 
     # Iterate over episodes
     for episode in range(num_episodes):
-
-        # Set to target policy at final episode
-        if episode == len(range(num_episodes)) - 1:
-            epsilon = 0
-
         # Initialize environment and agent position
         agent_pos, env, cliff_pos, goal_pos, game_over = init_env()
 
@@ -57,11 +55,12 @@ def monte_carlo(sim_input, sim_output, expoloring_starts=False) -> (np.array, li
         action_trajectory = []
         reward_trajectory = []
         state_action_trajectory = []
-
+        current_epsilon = epsilon
         while not game_over:
+            current_epsilon = 0 if episode == len(range(num_episodes)) - 1 else current_epsilon - epsilon_delta
             if steps_cache[episode] == 0:
                 state = get_state(agent_pos)
-                action = epsilon_greedy_action(state, q_table, epsilon)
+                action = epsilon_greedy_action(state, q_table, current_epsilon)
             state = get_state(agent_pos)
             agent_pos = move_agent(agent_pos, action)
             env = mark_path(agent_pos, env)
@@ -70,10 +69,8 @@ def monte_carlo(sim_input, sim_output, expoloring_starts=False) -> (np.array, li
             rewards_cache[episode] += reward
             reward_trajectory.append(reward)
             state_action_trajectory.append([state, action])
-            game_over = check_game_over(episode,
-                next_state, cliff_pos, goal_pos, steps_cache[episode]
-            )
-            next_action = epsilon_greedy_action(next_state, q_table, epsilon)
+            game_over = check_game_over(episode, next_state, cliff_pos, goal_pos, steps_cache[episode], max_steps)
+            next_action = epsilon_greedy_action(next_state, q_table, current_epsilon)
             action = next_action
             steps_cache[episode] += 1
         update_q_table(q_table, state_action_trajectory, reward_trajectory, gamma, alpha)
