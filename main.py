@@ -17,10 +17,6 @@ if __name__ == "__main__":
         def __str__(self):
             return f"# episodes: {self.num_episodes}, gamma: {self.gamma}, alpha: {self.alpha}, epsilon: {self.epsilon}"
 
-    run_algorithms = {
-        "Monte Carlo"
-    }
-
 
     class sim_output:
         def __init__(self, rewards_cache, step_cache, env_cache, name_cache):
@@ -33,9 +29,13 @@ if __name__ == "__main__":
         rewards_cache=[], step_cache=[], env_cache=[], name_cache=[]
     )
 
+    run_algorithms = {
+        "Monte Carlo"
+    }
+
     # Run Monte Carlo
     if "Monte Carlo" in run_algorithms:
-        sim_input = sim_init(num_episodes=100000, max_steps=1000, gamma=0.8, alpha=0.01, max_epsilon=0.4, min_epsilon=0)
+        sim_input = sim_init(num_episodes=10000, max_steps=1000, gamma=0.8, alpha=0.01, max_epsilon=0.1, min_epsilon=0)
         q_table_mc, sim_output = monte_carlo(sim_input, sim_output)
 
     # Print console output
