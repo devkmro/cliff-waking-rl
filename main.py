@@ -2,6 +2,7 @@ import numpy as np
 
 from plot import plot_steps, plot_rewards, console_output, plot_path
 from monte_carlo import monte_carlo
+from sarsa import sarsa
 
 
 if __name__ == "__main__":
@@ -30,13 +31,19 @@ if __name__ == "__main__":
     )
 
     run_algorithms = {
-        "Monte Carlo"
+        #"Monte Carlo",
+        "SARSA"
     }
 
     # Run Monte Carlo
     if "Monte Carlo" in run_algorithms:
-        sim_input = sim_init(num_episodes=10000, max_steps=1000, gamma=0.8, alpha=0.01, max_epsilon=0.1, min_epsilon=0)
+        sim_input = sim_init(num_episodes=10000, max_steps=100, gamma=0.8, alpha=0.01, max_epsilon=0.1, min_epsilon=0)
         q_table_mc, sim_output = monte_carlo(sim_input, sim_output)
+
+    # Run SARSA
+    if "SARSA" in run_algorithms:
+        sim_input = sim_init(num_episodes=10000, max_steps=1000, gamma=0.8, alpha=0.01, max_epsilon=0.2, min_epsilon=0)
+        q_table_sarsa, sim_output = sarsa(sim_input, sim_output)
 
     # Print console output
     console_output(
